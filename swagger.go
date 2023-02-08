@@ -302,7 +302,7 @@ const swaggerIndexTpl = `<!-- HTML for static distribution bundle build -->
 
 <script src="./swagger-ui-bundle.js" nonce="{{ .Nonce }}"> </script>
 <script src="./swagger-ui-standalone-preset.js" nonce="{{ .Nonce }}"> </script>
-<script>
+<script nonce="{{ .Nonce }}>
 window.onload = function() {
   // Build a system
   const ui = SwaggerUIBundle({
