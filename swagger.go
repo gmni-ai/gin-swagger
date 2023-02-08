@@ -23,6 +23,7 @@ type swaggerConfig struct {
 	DeepLinking              bool
 	PersistAuthorization     bool
 	Oauth2DefaultClientID    string
+	Nonce                    string
 }
 
 // Config stores ginSwagger configuration variables.
@@ -36,6 +37,7 @@ type Config struct {
 	DeepLinking              bool
 	PersistAuthorization     bool
 	Oauth2DefaultClientID    string
+	Nonce                    string
 }
 
 func (config Config) toSwaggerConfig() swaggerConfig {
@@ -50,6 +52,7 @@ func (config Config) toSwaggerConfig() swaggerConfig {
 		Title:                 config.Title,
 		PersistAuthorization:  config.PersistAuthorization,
 		Oauth2DefaultClientID: config.Oauth2DefaultClientID,
+		Nonce:                 config.Nonce,
 	}
 }
 
@@ -105,6 +108,13 @@ func Oauth2DefaultClientID(oauth2DefaultClientID string) func(*Config) {
 	}
 }
 
+// Nonce to set in the head and on all styles and scripts
+func Nonce(nonce string) func(*Config) {
+	return func(c *Config) {
+		c.Nonce = nonce
+	}
+}
+
 // WrapHandler wraps `http.Handler` into `gin.HandlerFunc`.
 func WrapHandler(handler *webdav.Handler, options ...func(*Config)) gin.HandlerFunc {
 	var config = Config{
@@ -116,6 +126,7 @@ func WrapHandler(handler *webdav.Handler, options ...func(*Config)) gin.HandlerF
 		DeepLinking:              true,
 		PersistAuthorization:     false,
 		Oauth2DefaultClientID:    "",
+		Nonce:                    "",
 	}
 
 	for _, c := range options {
@@ -227,10 +238,10 @@ const swaggerIndexTpl = `<!-- HTML for static distribution bundle build -->
 <head>
   <meta charset="UTF-8">
   <title>{{.Title}}</title>
-  <link rel="stylesheet" type="text/css" href="./swagger-ui.css" >
-  <link rel="icon" type="image/png" href="./favicon-32x32.png" sizes="32x32" />
-  <link rel="icon" type="image/png" href="./favicon-16x16.png" sizes="16x16" />
-  <style>
+  <link rel="stylesheet" type="text/css" href="./swagger-ui.css" nonce="{{ .Nonce }}" />
+  <link rel="icon" type="image/png" href="./favicon-32x32.png" sizes="32x32" nonce="{{ .Nonce }}" />
+  <link rel="icon" type="image/png" href="./favicon-16x16.png" sizes="16x16" nonce="{{ .Nonce }}" />
+  <style nonce="{{ .Nonce }}">
     html
     {
         box-sizing: border-box;
@@ -289,8 +300,8 @@ const swaggerIndexTpl = `<!-- HTML for static distribution bundle build -->
 
 <div id="swagger-ui"></div>
 
-<script src="./swagger-ui-bundle.js"> </script>
-<script src="./swagger-ui-standalone-preset.js"> </script>
+<script src="./swagger-ui-bundle.js" nonce="{{ .Nonce }}"> </script>
+<script src="./swagger-ui-standalone-preset.js" nonce="{{ .Nonce }}"> </script>
 <script>
 window.onload = function() {
   // Build a system
